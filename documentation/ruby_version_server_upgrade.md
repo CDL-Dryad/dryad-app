@@ -36,7 +36,7 @@ rm -rf ruby-2.6.6
 - [ ] Install some basic gems
 ```shell script
 gem update --system
-gem install bundler -v 1.17.3
+gem install bundler
 # I don't believe you need these, but they wouldn't hurt to install at same versions as your gemfile.lock
 # gem install capistrano -v 3.14.1
 # gem install capistrano-bundler -v 1.6.0
@@ -68,7 +68,7 @@ bundle  # takes a while installing gems
 - [ ] Symlink the files, otherwise capistrano task fails, change the deployment host in commands below.
 ```shell script
 cap development deploy:my_linked_files
-cap development deploy:symlink_shared
+cap development deploy:symlink:shared
 cap development deploy:update_config BRANCH="$MY_BRANCH"
 ```
 
