@@ -45,6 +45,6 @@ before_script:
 
 script:
   - if [ "$TO_TEST" = "MAIN" ]; then rubocop; fi
-  - if [ "$TO_TEST" = "MAIN" ]; then RAILS_ENV=test bundle exec rspec; fi	
+  - if [ "$TO_TEST" = "MAIN" ]; then RAILS_ENV=test bundle exec rake; fi	
   - if [ "$TO_TEST" = "STASH" ]; then stash/travis-build.rb; fi
 
