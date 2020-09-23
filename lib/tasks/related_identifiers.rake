@@ -1,4 +1,5 @@
 require_relative 'related_identifiers/replacements'
+require_relative 'related_identifiers/tsv_updating'
 
 namespace :related_identifiers do
 
@@ -12,5 +13,12 @@ namespace :related_identifiers do
     RelatedIdentifiers::Replacements.update_protocol_free
     RelatedIdentifiers::Replacements.update_non_ascii
     RelatedIdentifiers::Replacements.remaining_strings_containing_dois
+  end
+
+  desc 'update the DOIs according to sheet1'
+  task fix_sheet1: :environment do
+    fn = '/Users/sfisher/related_fixing/sheet1.tsv'
+    updater = RelatedIdentifiers::TsvUpdating.new(filename: fn)
+    updater.update_sheet1
   end
 end
