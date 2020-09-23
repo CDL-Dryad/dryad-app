@@ -17,6 +17,7 @@ namespace :related_identifiers do
 
   desc 'update the DOIs according to sheet1'
   task fix_sheet1: :environment do
+    $stdout.sync = true
     fn = '/Users/sfisher/related_fixing/sheet1.tsv'
     updater = RelatedIdentifiers::TsvUpdating.new(filename: fn)
     updater.update_sheet1
