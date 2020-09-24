@@ -48,7 +48,7 @@ module RelatedIdentifiers
 
     def fixed_work_type(value)
       return 'dataset' if value&.downcase == 'data'
-      return 'supplemental_information' if value&.downcase == 'protocol'
+      return 'supplemental_information' if value&.downcase == 'protocol' || value&.downcase == 'supporting information'
 
       value.downcase
     end
