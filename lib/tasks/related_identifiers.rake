@@ -22,4 +22,20 @@ namespace :related_identifiers do
     updater = RelatedIdentifiers::TsvUpdating.new(filename: fn)
     updater.update_sheet1
   end
+
+  desc 'hide bad in sheet2'
+  task hidden_sheet2: :environment do
+    $stdout.sync = true
+    fn = '/Users/sfisher/related_fixing/sheet2.tsv'
+    updater = RelatedIdentifiers::TsvUpdating.new(filename: fn)
+    updater.update_hidden_sheet2
+  end
+
+  desc 'update works in sheet2'
+  task update_works_sheet2: :environment do
+    $stdout.sync = true
+    fn = '/Users/sfisher/related_fixing/sheet2.tsv'
+    updater = RelatedIdentifiers::TsvUpdating.new(filename: fn)
+    updater.update_works_sheet2
+  end
 end
