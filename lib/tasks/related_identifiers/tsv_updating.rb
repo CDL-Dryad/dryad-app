@@ -108,6 +108,98 @@ module RelatedIdentifiers
       puts 'Done'
     end
 
+    def update_works_sheet3
+      @logger.info("Started run sheet 3 updated works")
+      count = 0
+      File.open(@filename, 'r').each_with_index do |line, idx|
+        next if idx == 0 || line.strip == ''
+
+        cols = line.split("\t").map(&:strip)
+
+        next if cols[4]&.downcase&.strip.blank?
+
+        shortened_like = ( cols[2].length > 10 ? cols[2][-10..-1] : str )
+
+        related_ids = StashDatacite::RelatedIdentifier.where(resource_id: cols[1]).where("related_identifier LIKE ?", "%#{shortened_like}%" )
+        if related_ids.length.positive?
+          related_ids.each do |related_id|
+            if valid_work_type?(cols[4])
+              count += 1
+              fixed_id = StashDatacite::RelatedIdentifier.standardize_format(cols[2])
+              id_type = StashDatacite::RelatedIdentifier.identifier_type_from_str(fixed_id)
+              validated = StashDatacite::RelatedIdentifier.valid_url?(fixed_id)
+              related_id.update_columns(relation_type: relation_type(cols[4]),
+                                        work_type: fixed_work_type(cols[4]),
+                                        verified: validated,
+                                        related_identifier: fixed_id,
+                                        related_identifier_type: id_type,
+                                        hidden: false)
+            else
+              @logger.error("idx: #{idx}, Couldn't find record with resource #{cols[1]} and ID #{cols[2]}")
+            end
+          end
+        else
+          @logger.error("idx: #{idx}, Couldn't find record with resource #{cols[1]} and ID #{cols[2]}")
+        end
+        puts "Finished #{idx} records" if (idx % 100) == 0 && idx != 0
+      end
+      puts "Updated #{count} related"
+      puts 'Done'
+    end
+
+    def update_works_sheet4
+      @logger.info("Started run sheet 4 updated works")
+      count = 0
+      File.open(@filename, 'r').each_with_index do |line, idx|
+        next if idx == 0 || line.strip == ''
+
+        cols = line.split("\t").map(&:strip)
+
+        if cols[6]&.downcase&.strip.blank?
+          StashDatacite::RelatedIdentifier.where(id: cols[2]).each do |i|
+            i.update_columns(hidden: true, verified: false)
+          end
+          next
+        end
+
+        related_ids = StashDatacite::RelatedIdentifier.where(id: cols[2])
+        if related_ids.length.positive?
+          related_ids.each do |related_id|
+            if valid_work_type?(cols[6])
+              count += 1
+              fixed_id = StashDatacite::RelatedIdentifier.standardize_format(cols[4])
+              id_type = StashDatacite::RelatedIdentifier.identifier_type_from_str(fixed_id)
+              validated = StashDatacite::RelatedIdentifier.valid_url?(fixed_id)
+              related_id.update_columns(relation_type: relation_type(cols[6]),
+                                        work_type: fixed_work_type(cols[6]),
+                                        verified: validated,
+                                        related_identifier: fixed_id,
+                                        related_identifier_type: id_type,
+                                        hidden: false)
+            else
+              @logger.error("idx: #{idx}, Couldn't find record with related_id #{cols[2]}")
+            end
+          end
+        else
+          @logger.error("idx: #{idx}, Couldn't find record with related_id #{cols[2]}")
+        end
+        puts "Finished #{idx} records" if (idx % 100) == 0 && idx != 0
+      end
+      puts "Updated #{count} related"
+      puts 'Done'
+    end
+
+    def self.better_identifiers
+      StashDatacite::RelatedIdentifier.where(work_type: 'undefined', hidden: false).each do |ri|
+        puts "checking and fixing ID for #{ri.id}"
+        fixed_id = StashDatacite::RelatedIdentifier.standardize_format(ri.related_identifier)
+        ri_type = StashDatacite::RelatedIdentifier.identifier_type_from_str(fixed_id)
+        validated = StashDatacite::RelatedIdentifier.valid_url?(fixed_id)
+        ri.update_columns(verified: validated,
+                          related_identifier: fixed_id,
+                          related_identifier_type: ri_type)
+      end
+    end
 
     private
 

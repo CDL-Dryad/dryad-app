@@ -38,4 +38,26 @@ namespace :related_identifiers do
     updater = RelatedIdentifiers::TsvUpdating.new(filename: fn)
     updater.update_works_sheet2
   end
+
+  desc 'update tab3 where type of work set'
+  task update_works_sheet3: :environment do
+    $stdout.sync = true
+    fn = '/Users/sfisher/related_fixing/sheet3.tsv'
+    updater = RelatedIdentifiers::TsvUpdating.new(filename: fn)
+    updater.update_works_sheet3
+  end
+
+  desc 'update tab4 recent works'
+  task update_works_sheet4: :environment do
+    $stdout.sync = true
+    fn = '/Users/sfisher/related_fixing/sheet4.tsv'
+    updater = RelatedIdentifiers::TsvUpdating.new(filename: fn)
+    updater.update_works_sheet4
+  end
+
+  desc 'update things to have better identifiers'
+  task update_unknown_better_ids: :environment do
+    $stdout.sync = true
+    RelatedIdentifiers::TsvUpdating.better_identifiers
+  end
 end
