@@ -189,6 +189,48 @@ module RelatedIdentifiers
       puts 'Done'
     end
 
+    def update_works_sheet5
+      @logger.info("Started run sheet 5 updated works")
+      count = 0
+      File.open(@filename, 'r').each_with_index do |line, idx|
+        next if idx == 0 || line.strip == ''
+
+        cols = line.split("\t").map(&:strip)
+
+        unless cols[6]&.downcase&.strip.blank?
+          StashDatacite::RelatedIdentifier.where(id: cols[0]).each do |i|
+            i.update_columns(hidden: true, verified: false)
+          end
+          next
+        end
+
+        related_ids = StashDatacite::RelatedIdentifier.where(id: cols[0])
+        if related_ids.length.positive?
+          related_ids.each do |related_id|
+            if valid_work_type?(cols[5])
+              count += 1
+              fixed_id = StashDatacite::RelatedIdentifier.standardize_format(cols[1])
+              id_type = StashDatacite::RelatedIdentifier.identifier_type_from_str(fixed_id)
+              validated = StashDatacite::RelatedIdentifier.valid_url?(fixed_id)
+              related_id.update_columns(relation_type: relation_type(cols[5]),
+                                        work_type: fixed_work_type(cols[5]),
+                                        verified: validated,
+                                        related_identifier: fixed_id,
+                                        related_identifier_type: id_type,
+                                        hidden: false)
+            else
+              @logger.error("idx: #{idx}, Couldn't find work type for related_id #{cols[0]}")
+            end
+          end
+        else
+          @logger.error("idx: #{idx}, Couldn't find record with related_id #{cols[0]}")
+        end
+        puts "Finished #{idx} records" if (idx % 100) == 0 && idx != 0
+      end
+      puts "Updated #{count} related"
+      puts 'Done'
+    end
+
     def self.better_identifiers
       StashDatacite::RelatedIdentifier.where(work_type: 'undefined', hidden: false).each do |ri|
         puts "checking and fixing ID for #{ri.id}"

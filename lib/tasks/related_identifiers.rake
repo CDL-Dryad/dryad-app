@@ -55,6 +55,14 @@ namespace :related_identifiers do
     updater.update_works_sheet4
   end
 
+  desc 'update tab5 leftovers'
+  task update_works_sheet5: :environment do
+    $stdout.sync = true
+    fn = '/Users/sfisher/related_fixing/sheet5.tsv'
+    updater = RelatedIdentifiers::TsvUpdating.new(filename: fn)
+    updater.update_works_sheet5
+  end
+
   desc 'update things to have better identifiers'
   task update_unknown_better_ids: :environment do
     $stdout.sync = true
